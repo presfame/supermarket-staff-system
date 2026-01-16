@@ -10,6 +10,16 @@
         <a href="{{ route('employees.edit', $employee->id) }}" class="btn btn-info">
             <i class="fas fa-edit me-2"></i>Edit
         </a>
+        @if(auth()->check() && in_array(auth()->user()->role, ['admin','hr']))
+            <a href="{{ route('leave-requests.create', ['employee_id' => $employee->id]) }}" class="btn btn-warning">
+                <i class="fas fa-plane-departure me-2"></i>Create Leave
+            </a>
+        @endif
+        @if(auth()->check() && (auth()->user()->email == $employee->email || auth()->user()->employee_id == $employee->id))
+            <a href="{{ route('leave-requests.create') }}" class="btn btn-primary">
+                <i class="fas fa-paper-plane me-2"></i>Request Leave
+            </a>
+        @endif
         <a href="{{ route('employees.index') }}" class="btn btn-secondary">
             <i class="fas fa-arrow-left me-2"></i>Back
         </a>

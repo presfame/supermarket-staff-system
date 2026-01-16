@@ -40,6 +40,18 @@
                 @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
             <div class="col-md-4 mb-3">
+                <label class="form-label">Create User Account</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="create_user" id="create_user" {{ old('create_user') ? 'checked' : '' }}>
+                    <label class="form-check-label" for="create_user">Create login account for this employee</label>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Password (if creating account)</label>
+                <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" value="{{ old('password') }}" placeholder="leave blank for default 'password'">
+                @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
+            </div>
+            <div class="col-md-4 mb-3">
                 <label class="form-label">Date of Birth <span class="text-danger">*</span></label>
                 <input type="date" name="date_of_birth" class="form-control @error('date_of_birth') is-invalid @enderror" value="{{ old('date_of_birth') }}" required>
                 @error('date_of_birth')<div class="invalid-feedback">{{ $message }}</div>@enderror

@@ -6,6 +6,8 @@ use App\Http\Controllers\{
     PositionController, AttendanceController, PayrollController,
     SettingsController, ShiftController, ReportController
 };
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\LeaveRequestController;
 
 Route::get('/', fn() => redirect()->route('login'));
 
@@ -42,10 +44,17 @@ Route::middleware(['auth'])->group(function () {
         Route::get('reports/attendance', [ReportController::class, 'attendance'])->name('reports.attendance');
         Route::get('reports/payroll', [ReportController::class, 'payroll'])->name('reports.payroll');
         Route::get('reports/performance', [ReportController::class, 'performance'])->name('reports.performance');
+
+        // User management
+        Route::resource('users', UserController::class);
     });
 
     // Attendance - accessible by admin, hr, supervisor
     Route::resource('attendance', AttendanceController::class)->middleware('role:admin,hr,supervisor');
+    // Leave requests
+    Route::resource('leave-requests', LeaveRequestController::class);
+    Route::post('leave-requests/{id}/approve', [LeaveRequestController::class, 'approve'])->name('leave-requests.approve');
+    Route::post('leave-requests/{id}/reject', [LeaveRequestController::class, 'reject'])->name('leave-requests.reject');
     
     // Self clock-in/out for all authenticated users
     Route::post('attendance/clock-in', [AttendanceController::class, 'clockIn'])->name('attendance.clock-in');

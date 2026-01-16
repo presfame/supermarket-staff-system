@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\{Employee, Department, Position};
+use App\Models\{Employee, Department, Position, User};
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
 class EmployeeController extends Controller
@@ -35,6 +37,7 @@ class EmployeeController extends Controller
             'last_name' => 'required|max:100',
             'id_number' => 'required|unique:employees',
             'phone' => 'required',
+            'email' => 'nullable|email|unique:employees,email|unique:users,email',
             'date_of_birth' => 'required|date',
             'gender' => 'required|in:Male,Female,Other',
             'department_id' => 'required|exists:departments,id',
@@ -42,10 +45,28 @@ class EmployeeController extends Controller
             'date_of_hire' => 'required|date',
             'pay_type' => 'required|in:Hourly,Monthly',
             'basic_salary' => 'required|numeric|min:0',
+            'create_user' => 'nullable|in:on,1',
+            'password' => 'nullable|required_if:create_user,on|min:6',
         ]);
 
         $validated['employee_number'] = $this->generateEmployeeNumber();
-        Employee::create($validated);
+
+        DB::transaction(function () use ($validated, $request) {
+            $employee = Employee::create($validated);
+
+            // Optionally create a User account for the employee
+            if ($request->has('create_user') && $request->input('create_user')) {
+                $pw = $validated['password'] ?? 'password';
+                User::create([
+                    'name' => $employee->first_name . ' ' . $employee->last_name,
+                    'email' => $validated['email'] ?? $employee->email,
+                    'password' => Hash::make($pw),
+                    'role' => 'employee',
+                    'employee_id' => $employee->id,
+                    'is_active' => true,
+                ]);
+            }
+        });
 
         return redirect()->route('employees.index')->with('success', 'Employee added!');
     }
@@ -67,9 +88,18 @@ class EmployeeController extends Controller
             'department_id' => 'required|exists:departments,id',
             'position_id' => 'required|exists:positions,id',
             'basic_salary' => 'required|numeric',
+            'employment_status' => 'required|in:Active,Inactive,Suspended,Terminated',
         ]);
 
         $employee->update($validated);
+
+        // If this employee has a linked user account, sync their active state
+        $user = User::where('employee_id', $employee->id)->first();
+        if ($user) {
+            $user->is_active = $employee->employment_status === 'Active';
+            $user->save();
+        }
+
         return redirect()->route('employees.index')->with('success', 'Employee updated!');
     }
 

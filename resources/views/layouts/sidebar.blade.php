@@ -28,6 +28,9 @@
             <a href="{{ route('positions.index') }}" class="menu-item {{ request()->routeIs('positions.*') ? 'active' : '' }}">
                 <i class="fas fa-id-badge"></i><span>Positions</span>
             </a>
+            <a href="{{ route('users.index') }}" class="menu-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
+                <i class="fas fa-user-cog"></i><span>Users</span>
+            </a>
             <a href="{{ route('shifts.index') }}" class="menu-item {{ request()->routeIs('shifts.*') ? 'active' : '' }}">
                 <i class="fas fa-calendar-alt"></i><span>Shifts</span>
             </a>
@@ -51,6 +54,13 @@
             </a>
         </div>
         @endif
+        
+        <div class="menu-section">
+            <p class="menu-label">REQUESTS</p>
+            <a href="{{ route('leave-requests.index') }}" class="menu-item {{ request()->routeIs('leave-requests.*') ? 'active' : '' }}">
+                <i class="fas fa-plane-departure"></i><span>Leave Requests</span>
+            </a>
+        </div>
         <div class="menu-section">
             <p class="menu-label">PERSONAL</p>
             <a href="{{ route('schedule.my') }}" class="menu-item {{ request()->routeIs('schedule.my') ? 'active' : '' }}">
